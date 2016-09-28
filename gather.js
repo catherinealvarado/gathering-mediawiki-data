@@ -43,12 +43,3 @@ https.get(url, (res) => {
 // stage for commit: git add . (or specific names)
 //  git commit -m ""
 //  git push
-
-
-
-
-// new RegExp("\\n")
-//
-// or simply:
-//
-// /\n/
