@@ -1,14 +1,17 @@
 var https = require('https');
 
 
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1960%20South%20Vietnamese%20coup%20attempt";//Stack%20Overflow
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "1981%20Irish%20hunger%20strike";//Stack%20Overflow
 //https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1689%20Boston%20revolt
 
 //might want to remove this:
-/*
-Arrest%20and%20assassination%20of%20Ngo%20Dinh%20Diem
+/* use a regex function that outputs any special characters used except ' , - ! ...(figure out better way to parse this)
+1964%20Brinks%20Hotel%20bombing think about accronyms
 
+Arrest%20and%20assassination%20of%20Ngo%20Dinh%20Diem
+1981%20Irish%20hunger%20strike ///// look at the end //look into:the right not to wear a prison uniform;
 */
+
 
 
 https.get(url, (res) => {
@@ -22,14 +25,24 @@ https.get(url, (res) => {
     var content = data.query.pages[pageid].extract
 
     function cleanString(str){
-      str = str.replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
-              .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
-              .split('== See also ==')[0]
-              .split('== Notes ==')[0]
-              .replace(/ *\=.*\= */gi, "")
-              // .replace(/(\r\n|\n|\r)/gm, '') //remove single words ////
+      str = str
+              // .split('== Notes ==')[0]
+              //
+              .split('= Notes =')[0]
+              .split('= See also =')[0] // IS THIS NECESSARY?
+              .split('= References =')[0]
+              .split('= Farthest South records =')[0]
+              // .replace(/ *\=.*\= */gi, "")
 
-              //do this once everything cleaned
+              //more specific for articles:
+              .split('= U.S. reaction =')[0]
+              .split('= Postwar politics =')[0]
+
+              // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
+              // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
+
+              //DO THIS WHEN DONE CLEANING!!! this once everything cleaned
+              // .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
               // var content = content.replace(/(\r\n|\n|\r)/gm, '')//removing new lines
       return str;
     }
@@ -38,6 +51,9 @@ https.get(url, (res) => {
   });
 })
 
+console.log("**************************************************************************************************")
+console.log("**************************************************************************************************")
+console.log("**************************************************************************************************")
 
 // git status
 // stage for commit: git add . (or specific names)
