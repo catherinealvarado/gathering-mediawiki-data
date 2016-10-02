@@ -1,7 +1,7 @@
 var https = require('https');
 
 
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "1981%20Irish%20hunger%20strike";//Stack%20Overflow
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "Assassination%20of%20Spencer%20Perceval";//Stack%20Overflow
 //https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1689%20Boston%20revolt
 
 //might want to remove this:
@@ -32,11 +32,11 @@ https.get(url, (res) => {
               .split('= See also =')[0] // IS THIS NECESSARY?
               .split('= References =')[0]
               .split('= Farthest South records =')[0]
-              // .replace(/ *\=.*\= */gi, "")
 
               //more specific for articles:
               .split('= U.S. reaction =')[0]
               .split('= Postwar politics =')[0]
+              .replace(/ *\=.*\= */gi, "")
 
               // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
               // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
@@ -45,6 +45,21 @@ https.get(url, (res) => {
               // .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
               // var content = content.replace(/(\r\n|\n|\r)/gm, '')//removing new lines
       return str;
+    }
+
+    //need to figure out how to break down paragraph into sentences 
+    function paragraphsToSentences(str){
+      /*
+       /a-z. /gi need the length of a-z to be greater than one
+       /". /
+       /a-z." /
+       /?. /
+       /!. /
+       /'. /
+
+       There once was a fellow called H. J. Hawkin was a poop.
+      */
+
     }
     content = cleanString(content)
     console.log(content)
