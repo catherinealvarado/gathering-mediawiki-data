@@ -25,44 +25,37 @@ https.get(url, (res) => {
     var content = data.query.pages[pageid].extract
 
     function cleanString(str){
-      str = str
-              // .split('== Notes ==')[0]
-              //
-              .split('= Notes =')[0]
+      str = str.split('= Notes =')[0]
               .split('= See also =')[0] // IS THIS NECESSARY?
               .split('= References =')[0]
               .split('= Farthest South records =')[0]
-
-              //more specific for articles:
+              //more specific for certain articles:
               .split('= U.S. reaction =')[0]
               .split('= Postwar politics =')[0]
               .replace(/ *\=.*\= */gi, "")
 
-              // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
-              // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
-
-              //DO THIS WHEN DONE CLEANING!!! this once everything cleaned
-              // .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
-              // var content = content.replace(/(\r\n|\n|\r)/gm, '')//removing new lines
+              .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
       return str;
     }
 
-    //need to figure out how to break down paragraph into sentences 
+    //break down complex paragraph into sentences
     function paragraphsToSentences(str){
-      /*
-       /a-z. /gi need the length of a-z to be greater than one
-       /". /
+      var result = str.match(/[A-Z](?:[^\.!]|\.(?=\d+)|\.(?:\.+\s[a-z]))*[\.!\?]/g);
+      return result;
+      /* Match for the following cases
+       /a-z. /gi need the length of a-z to be greater than one Need to adjust for cases with initials!!
        /a-z." /
-       /?. /
-       /!. /
-       /'. /
-
-       There once was a fellow called H. J. Hawkin was a poop.
       */
 
     }
+    // create function to further remove sentences that need context include:
+      // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
+      // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
+
     content = cleanString(content)
+    var sentences = paragraphsToSentences(content)
     console.log(content)
+    console.log(sentences)
   });
 })
 
