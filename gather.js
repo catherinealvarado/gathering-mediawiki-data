@@ -34,14 +34,14 @@ https.get(url, (res) => {
               .split('= Postwar politics =')[0]
               .replace(/ *\=.*\= */gi, "") //remove wiki titles
               .replace(/\=/gi, "") //remove remaining =
-
               .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
+              .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
       return str;
     }
 
     //break down complex paragraph into sentences
     function paragraphsToSentences(str){
-      var re = /\b(\w\.\s)|(\.+\s[a-z])|([.|?|!|.\"])\s+(?=[A-Za-z])/g;
+      var re = /\b(\w\.\s)|(\.+\s[a-z])|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
       var result = str.replace(re, function(m, g1, g2, g3){
         return g1 ? g1 : (g2 ? g2 : g3 + "\r")
       });
@@ -51,20 +51,30 @@ https.get(url, (res) => {
       // return sentencesArr;
 
       /* Match for the following cases
-       /a-z. /gi need the length of a-z to be greater than one Need to adjust for cases with initials!!
-       military ranks Jr. Sr. think about this
-       /a-z." /
+       /a-z. /gi need the length of a-z to be greater than one like Mr. Mrs.
+       ranks Jr. Sr. think about this
       */
     }
 
-    // create function to further remove sentences that need context include:
-      // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
-      // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]
+    //remove invalid sentences
+    var regExp = / (\(|\)|\[|\]|\"|\')/g
+    function removeNonValidSentences(arr,regex){
+      var j = 0;
+      while (j < arr.length) {
+          if (regex.test(arr[j]))
+              arr.splice(j, 1);
+          else
+              j++;
+      }
+      return arr;
+    }
 
     content = cleanString(content)
-    var sentences = paragraphsToSentences(content)
+    var sentences = removeNonValidSentences(paragraphsToSentences(content),regExp)
     console.log(content)
-    console.log(sentences)
+    for (var i = 0;i < sentences.length;i++){
+      console.log("**"+i+":  ",sentences[i]);
+    }
   });
 })
 
