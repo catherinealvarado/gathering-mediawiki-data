@@ -1,7 +1,7 @@
 var https = require('https');
 
 
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "Assassination%20of%20Spencer%20Perceval";//Stack%20Overflow
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "1960%20South%20Vietnamese%20coup%20attempt";//Stack%20Overflow
 //https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1689%20Boston%20revolt
 
 //might want to remove this:
@@ -32,7 +32,8 @@ https.get(url, (res) => {
               //more specific for certain articles:
               .split('= U.S. reaction =')[0]
               .split('= Postwar politics =')[0]
-              .replace(/ *\=.*\= */gi, "")
+              .replace(/ *\=.*\= */gi, "") //remove wiki titles
+              .replace(/\=/gi, "") //remove remaining =
 
               .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
       return str;
@@ -40,14 +41,22 @@ https.get(url, (res) => {
 
     //break down complex paragraph into sentences
     function paragraphsToSentences(str){
-      var result = str.match(/[A-Z](?:[^\.!]|\.(?=\d+)|\.(?:\.+\s[a-z]))*[\.!\?]/g);
-      return result;
+      var re = /\b(\w\.\s)|(\.+\s[a-z])|([.|?|!|.\"])\s+(?=[A-Za-z])/g;
+      var result = str.replace(re, function(m, g1, g2, g3){
+        return g1 ? g1 : (g2 ? g2 : g3 + "\r")
+      });
+      var sentencesArr = result.split("\r");
+      return sentencesArr;
+      // var sentencesArr = str.match(/[A-Z](?:[^\.!\?]|\.(?=\d+)|\.(?:\.+\s[a-z]))*[\.!\?]/g);
+      // return sentencesArr;
+
       /* Match for the following cases
        /a-z. /gi need the length of a-z to be greater than one Need to adjust for cases with initials!!
+       military ranks Jr. Sr. think about this
        /a-z." /
       */
-
     }
+
     // create function to further remove sentences that need context include:
       // .replace(/ *\([^)]*\) */g, "") //remove all sentences with parenthesis [FUTURE]
       // .replace(/ *\[[^)]*\] */g, " ") //remove all sentences with [] [FUTURE]

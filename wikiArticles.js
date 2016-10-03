@@ -12,7 +12,6 @@ var articles = ["1689 Boston revolt",
 "Amundsen's South Pole expedition", // "..." might want to remove
 "Ancient Egypt",
 "Arrest and assassination of Ngo Dinh Diem",
-"Assassination of Spencer Perceval", //u know me?' " no period outside
 "Assassination of William McKinley",
 "Bal des Ardents",
 "Benedict Arnold's expedition to Quebec", // us." (match for this also last sentence)
