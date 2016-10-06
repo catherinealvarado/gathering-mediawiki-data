@@ -51,27 +51,27 @@ https.get(url, (res) => {
       // return sentencesArr;
 
       /* Match for the following cases
-       /a-z. /gi need the length of a-z to be greater than one like Mr. Mrs.
-       ranks Jr. Sr. think about this
+       /a-z. /gi need the length of a-z to be greater than one like Mr. Mrs. Jr.
       */
     }
 
-    //remove invalid sentences
-    var regExp = / (\(|\)|\[|\]|\"|\')/g
+    var regExp = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"/g;
     function removeNonValidSentences(arr,regex){
       var j = 0;
       while (j < arr.length) {
-          if (regex.test(arr[j]))
+          if (arr[j].match(regex) || (arr[j].charCodeAt(0) >= 97 && arr[j].charCodeAt(0) <= 122)){
               arr.splice(j, 1);
-          else
+          }
+          else{
               j++;
+          }
       }
       return arr;
     }
 
-    content = cleanString(content)
-    var sentences = removeNonValidSentences(paragraphsToSentences(content),regExp)
-    console.log(content)
+    contents = cleanString(content)
+    var sentences = removeNonValidSentences(paragraphsToSentences(contents),regExp)
+    console.log(contents)
     for (var i = 0;i < sentences.length;i++){
       console.log("**"+i+":  ",sentences[i]);
     }
@@ -86,3 +86,8 @@ console.log("*******************************************************************
 // stage for commit: git add . (or specific names)
 //  git commit -m ""
 //  git push
+
+/*
+Peter questions remove:
+:
+*/
