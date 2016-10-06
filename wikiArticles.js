@@ -4,56 +4,54 @@
 var articles = ["1689 Boston revolt",
 "1740 Batavia massacre",
 "1907 Tiflis bank robbery",
-"1960 South Vietnamese coup attempt", // "..." might want to remove
-"1962 South Vietnamese Independence Palace bombing",
+//"1960 South Vietnamese coup attempt", // REMOVE THIS IF HAVE ENOUGH
+//"1962 South Vietnamese Independence Palace bombing",
 "1964 Brinks Hotel bombing",
-"1981 Irish hunger strike", // script text remove from list
-"Act of Independence of Lithuania",
-"Amundsen's South Pole expedition", // "..." might want to remove
+"1981 Irish hunger strike",
+"Act of Independence of Lithuania", //č
+"Amundsen's South Pole expedition",
 "Ancient Egypt",
-"Arrest and assassination of Ngo Dinh Diem",
+//"Arrest and assassination of Ngo Dinh Diem", // if decide to keep remove dialogue
 "Assassination of William McKinley",
 "Bal des Ardents",
-"Benedict Arnold's expedition to Quebec", // us." (match for this also last sentence)
-"Birmingham campaign", // in the United States."   segregation ... and bury  (match this)
+"Benedict Arnold's expedition to Quebec",
+"Birmingham campaign",
 "Blackwater fire of 1937",
 "British contribution to the Manhattan Project",
 "British Empire",
-"Brown Dog affair", // friends ... tell us
-"Burning of Parliament", //small ... when an im
-"Byzantine Empire", // commandments ... It saw itself as
-"California Gold Rush", // from the American River!" (match period or !)
+"Brown Dog affair",
+"Burning of Parliament", //Think about abbreaviations
+"Byzantine Empire",
+"California Gold Rush",
 "Chalukya dynasty",
-"Clinton Engineer Works", // Public Proclamation No. 2, declaring  delegated the task to the area engineer, Major Thomas T. Crenshaw, who
+"Clinton Engineer Works",
 "Convention of 1832",
 "Convention of 1833",
 "Confederate government of Kentucky",
-"December 1964 South Vietnamese coup", // Public Proclamation No. 2,
+//"December 1964 South Vietnamese coup", //have odd letters
 "Discovery Expedition",
-"Donner Party",
-"Double Seven Day scuffle",
-"Empire of Brazil",
+"Donner Party", //Mrs. is giving error here!!! ----- Jr. was working before ---------------------------------------------
+//"Double Seven Day scuffle", //have odd letters
+//"Empire of Brazil", //have odd letters, but alot of sentences
 "Exhumation and reburial of Richard III of England",
-"Far Eastern Party", // might want to remove this
-"Farthest South",
+"Farthest South", //sentence 26 seperate 2 sentences
 "Fredonian Rebellion",
-"Free State of Galveston",
-"French colonization of Texas", // encounters with Native Americans. . there seems to be problem
-"Gettysburg Address", //might want to remove (need to add specific regex)
+"Free State of Galveston", // remove last sentence
+"French colonization of Texas", //St. sentence error
 "George S. Patton slapping incidents",
 "Great Fire of London",
 "Great Stink",
-"Gunpowder Plot",
+"Gunpowder Plot", //St.
 "Halifax Explosion",
 "Han dynasty",
-"History of the Australian Capital Territory", //revenue ... passe
+"History of the Australian Capital Territory",
 "History of Burnside",
 "History of Minnesota",
 "History of Solidarity",
-"History of the Yosemite area",
+"History of the Yosemite area", //Dr. Lt.
 "Hoysala Empire",
-"Hungarian Revolution of 1956",
-"Imperial Trans-Antarctic Expedition",
+//"Hungarian Revolution of 1956", //Á
+//"Imperial Trans-Antarctic Expedition", //quotes from reading //CONTINUE CHECKING HERE!!!!!!!!!!!!!!!!!!!!!!!!
 "Inner German border", // saying: 'We're coming soon.' (check for this case)
 "Iranian Embassy siege",
 "Jarrow March", // remove don't like

@@ -1,18 +1,7 @@
 var https = require('https');
 
 
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "1960%20South%20Vietnamese%20coup%20attempt";//Stack%20Overflow
-//https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1689%20Boston%20revolt
-
-//might want to remove this:
-/* use a regex function that outputs any special characters used except ' , - ! ...(figure out better way to parse this)
-1964%20Brinks%20Hotel%20bombing think about accronyms
-
-Arrest%20and%20assassination%20of%20Ngo%20Dinh%20Diem
-1981%20Irish%20hunger%20strike ///// look at the end //look into:the right not to wear a prison uniform;
-*/
-
-
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "Imperial%20Trans-Antarctic%20Expedition";
 
 https.get(url, (res) => {
   var data="";
@@ -26,36 +15,39 @@ https.get(url, (res) => {
 
     function cleanString(str){
       str = str.split('= Notes =')[0]
-              .split('= See also =')[0] // IS THIS NECESSARY?
+              .split('= See also =')[0]
               .split('= References =')[0]
+              .split('= Notes and references =')[0]
               .split('= Farthest South records =')[0]
+              .split('= Reburial and commemorations =')[0]
+              .split('= See alsoEdit =')[0]
               //more specific for certain articles:
               .split('= U.S. reaction =')[0]
               .split('= Postwar politics =')[0]
-              .replace(/ *\=.*\= */gi, "") //remove wiki titles
-              .replace(/\=/gi, "") //remove remaining =
-              .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
+              .split('= Trials of Kamo =')[0]
+              .split('In What If the Gunpowder Plot Had Succeeded?')[0]
+              .replace(/ *\=.*\= */gi, "") //remove wiki titles ----
+              .replace(/\=/gi, "") //remove remaining = -----
+              .replace(/(\r\n|\n|\r)/gm, '') //remove new lines ------
               .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
       return str;
-    }
+     }
 
     //break down complex paragraph into sentences
-    function paragraphsToSentences(str){
+     function paragraphsToSentences(str){
       var re = /\b(\w\.\s)|(\.+\s[a-z])|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
       var result = str.replace(re, function(m, g1, g2, g3){
         return g1 ? g1 : (g2 ? g2 : g3 + "\r")
       });
       var sentencesArr = result.split("\r");
       return sentencesArr;
-      // var sentencesArr = str.match(/[A-Z](?:[^\.!\?]|\.(?=\d+)|\.(?:\.+\s[a-z]))*[\.!\?]/g);
-      // return sentencesArr;
+     }
+     /* Match for the following cases
+      /a-z. /gi need the length of a-z to be greater than one like Mr. -- Mrs.
+     */
 
-      /* Match for the following cases
-       /a-z. /gi need the length of a-z to be greater than one like Mr. Mrs. Jr.
-      */
-    }
-
-    var regExp = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"/g;
+//need to account for ...
+    var regExp = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
     function removeNonValidSentences(arr,regex){
       var j = 0;
       while (j < arr.length) {
@@ -90,4 +82,6 @@ console.log("*******************************************************************
 /*
 Peter questions remove:
 :
+time
+better to have sentences without abbreaviations
 */
