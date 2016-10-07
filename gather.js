@@ -1,7 +1,8 @@
 var https = require('https');
+var fs = require('fs');
 
 
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "Imperial%20Trans-Antarctic%20Expedition";
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + "Last%20voyage%20of%20the%20Karluk";
 
 https.get(url, (res) => {
   var data="";
@@ -26,27 +27,28 @@ https.get(url, (res) => {
               .split('= Postwar politics =')[0]
               .split('= Trials of Kamo =')[0]
               .split('In What If the Gunpowder Plot Had Succeeded?')[0]
-              .replace(/ *\=.*\= */gi, "") //remove wiki titles ----
-              .replace(/\=/gi, "") //remove remaining = -----
-              .replace(/(\r\n|\n|\r)/gm, '') //remove new lines ------
+              .split('BBC correspondent Ben Bradshaw described')[0]
+              .split('The first iron-cased and metal-cylinder rocket')[0]
+              .split('On handing over control to the Atomic Energy Commission')[0]
+              .split('Three counties were composed of the following')[0]
+              .split('Although frontality in portraiture was')[0]
+              .replace(/ *\=.*\= */gi, "") //remove wiki titles
+              .replace(/\=/gi, "") //remove remaining =
+              .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
               .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
       return str;
      }
 
     //break down complex paragraph into sentences
-     function paragraphsToSentences(str){
-      var re = /\b(\w\.\s)|(\.+\s[a-z])|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
-      var result = str.replace(re, function(m, g1, g2, g3){
-        return g1 ? g1 : (g2 ? g2 : g3 + "\r")
-      });
-      var sentencesArr = result.split("\r");
-      return sentencesArr;
-     }
-     /* Match for the following cases
-      /a-z. /gi need the length of a-z to be greater than one like Mr. -- Mrs.
-     */
+    function paragraphsToSentences(str){
+     var re = /\b(\w\.\s)|(\.+\s[a-z])|(Mrs.|Lt.|Dr.|St.|Mr.)|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
+     var result = str.replace(re, function(m, g1, g2, g3, g4){
+       return g1 ? g1 : (g2 ? g2 : (g3 ? g3 : g4 + "\r"))
+     });
+     var sentencesArr = result.split("\r");
+     return sentencesArr;
+    }
 
-//need to account for ...
     var regExp = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
     function removeNonValidSentences(arr,regex){
       var j = 0;
@@ -62,11 +64,13 @@ https.get(url, (res) => {
     }
 
     contents = cleanString(content)
-    var sentences = removeNonValidSentences(paragraphsToSentences(contents),regExp)
-    console.log(contents)
-    for (var i = 0;i < sentences.length;i++){
-      console.log("**"+i+":  ",sentences[i]);
-    }
+    var sentencesList = removeNonValidSentences(paragraphsToSentences(contents),regExp)
+    //start writing things here
+    fs.writeFile('sentences.txt', sentencesList.join("\n"), (err) => {
+      if (err) throw err;
+      console.log('It\'s saved!');
+    });
+
   });
 })
 
@@ -78,10 +82,3 @@ console.log("*******************************************************************
 // stage for commit: git add . (or specific names)
 //  git commit -m ""
 //  git push
-
-/*
-Peter questions remove:
-:
-time
-better to have sentences without abbreaviations
-*/
