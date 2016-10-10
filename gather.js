@@ -59,12 +59,16 @@ var getWikipediaContent = function(i){
       }
 
       //remove sentences with (,),[,],",", and ... ###CHECK IF ' IS BEING REMOVED!!!
-      var regExp = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
-      function removeNonValidSentences(arr,regex){
+      function removeNonValidSentences(arr){
+        var regExpOddASCII = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
+        var regExpNonASCII = /[ -z]/g
         var j = 0;
         while (j < arr.length) {
-          if (arr[j].match(regex) || (arr[j].charCodeAt(0) >= 97 && arr[j].charCodeAt(0) <= 122)){
-              arr.splice(j, 1);
+          if (arr[j].match(regExpOddASCII) || arr[j].match(regExpNonASCII)){
+            arr.splice(j, 1);
+          }
+          else if(arr[j].charCodeAt(0) >= 97 && arr[j].charCodeAt(0) <= 122){
+            arr.splice(j, 1);
           }
           else{
               j++;
@@ -74,7 +78,7 @@ var getWikipediaContent = function(i){
       }
 
       var entireContentAsStr = cleanEntireContentString(content)
-      var sentencesList = removeNonValidSentences(contentToSentences(entireContentAsStr),regExp)
+      var sentencesList = removeNonValidSentences(contentToSentences(entireContentAsStr))
       //start writing things here
       fs.appendFileSync("sentences.txt", sentencesList.join("\n"), "UTF-8",{'flags': 'a'});
     });
