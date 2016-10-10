@@ -10,17 +10,35 @@ function replaceEmptySpace(arr){
   return updatedArr;
 }
 
-
-var getWikipediaContent = function(i){
+var getWikipediaContent = function(i,a){
   https.get(i, (res) => {
     var data="";
     res.on('data', (chunk) => {
       data += chunk;
     });
+  https.get(a, (res) => {
+    var htmldata="";
+    res.on('data', (chunk) => {
+      htmldata += chunk;
+    });
     res.on('end', () => {
-      data = JSON.parse(data)
-      var pageid = Object.keys(data.query.pages)[0];
-      var content = data.query.pages[pageid].extract
+      htmldata = JSON.parse(htmldata)
+      var htmlContent = htmldata.parse.text['*']
+
+      function checkforDialogueOrLists(s){
+        if (s.search("<blockquote") >= 0 || s.search("<dl") >= 0){ ////SHOULD I CHECK FOR DL HERE??
+          return true;
+        }
+        else{
+          return false;
+        }
+       }
+
+       function parseWikiData(){
+        data = JSON.parse(data)
+        var pageid = Object.keys(data.query.pages)[0];
+        return data.query.pages[pageid].extract  //var content
+       }
 
       function cleanEntireContentString(str){
         str = str.split('= Notes =')[0]
@@ -47,7 +65,6 @@ var getWikipediaContent = function(i){
             .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
         return str;
        }
-
       //break down long content string into seperate sentences
       function contentToSentences(str){
        var re = /\b(\w\.\s)|(\.+\s[a-z])|(Mrs.|Lt.|Dr.|St.|Mr.)|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
@@ -57,7 +74,6 @@ var getWikipediaContent = function(i){
        var sentencesArr = result.split("\r");
        return sentencesArr;
       }
-
       //remove sentences with (,),[,],",", and ... ###CHECK IF ' IS BEING REMOVED!!!
       function removeNonValidSentences(arr){
         var regExpOddASCII = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
@@ -75,26 +91,45 @@ var getWikipediaContent = function(i){
           }
         }
         return arr;
+       }
+
+      function printWikiDataTextfile(){
+        if (checkforDialogueOrLists(htmlContent) === false){
+          var content = parseWikiData()
+          var entireContentAsStr = cleanEntireContentString(content)
+          var sentencesList = removeNonValidSentences(contentToSentences(entireContentAsStr))
+          //start writing things here
+          fs.appendFileSync("sentences.txt", sentencesList.join("\n"), "UTF-8",{'flags': 'a'});
+        }
       }
-
-      var entireContentAsStr = cleanEntireContentString(content)
-      var sentencesList = removeNonValidSentences(contentToSentences(entireContentAsStr))
-      //start writing things here
-      fs.appendFileSync("sentences.txt", sentencesList.join("\n"), "UTF-8",{'flags': 'a'});
+      printWikiDataTextfile();
     });
-  })
+  });
+})
 }
 
 console.log("**************************************************************************************************")
 console.log("**************************************************************************************************")
 console.log("**************************************************************************************************")
 
-var wikipediaArticleTitles = replaceEmptySpace(wikiArticles.articles);
-for (var i = 0; i < wikipediaArticleTitles.length; i++){
-  var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + wikipediaArticleTitles[i];
-  console.log(wikipediaArticleTitles[i])
-  getWikipediaContent(url);
-}
+//CONTINUE HERE!!
+//next step: get alot of wiki articles and put into list in wikiArticles.js
+//create a function for everything below, now note that you need to account for two different links
+//continue testing to make sure all functions work the way you want!! ex) correctly identify dialouge boxes, what about dl bullet points
+
+//UNCOMMENT THIS AND TURN INTO FUNCTION
+// var wikipediaArticleTitles = replaceEmptySpace(wikiArticles.articles);
+// for (var i = 0; i < wikipediaArticleTitles.length; i++){
+//   var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + wikipediaArticleTitles[i];
+//   console.log(wikipediaArticleTitles[i])
+//   getWikipediaContent(url);
+// }
+
+//NOW NEED TO ACCOUNT FOR TWO URLS!!
+var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1907%20Tiflis%20bank%20robbery"
+var ht = "https://en.wikipedia.org/w/api.php?action=parse&format=json&page=1907%20Tiflis%20bank%20robbery&prop=text"
+getWikipediaContent(url,ht)
+
 
 // git status
 // stage for commit: git add . (or specific names)
