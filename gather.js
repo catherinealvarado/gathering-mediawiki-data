@@ -61,10 +61,10 @@ var getWikipediaContent = function(i){
       //remove sentences with (,),[,],",", and ... ###CHECK IF ' IS BEING REMOVED!!!
       function removeNonValidSentences(arr){
         var regExpOddASCII = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
-        var regExpNonASCII = /[ -z]/g
+        var regExpNonASCII = /[^ -z]/g
         var j = 0;
         while (j < arr.length) {
-          if (arr[j].match(regExpOddASCII) || arr[j].match(regExpNonASCII)){
+          if (arr[j].match(regExpOddASCII) || arr[j].match(regExpNonASCII) !== null){
             arr.splice(j, 1);
           }
           else if(arr[j].charCodeAt(0) >= 97 && arr[j].charCodeAt(0) <= 122){
