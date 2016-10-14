@@ -1,7 +1,9 @@
 var https = require('https');
 var fs = require('fs');
+var readline = require('readline')
 var wikiArticles = require('./wikiArticles.js');
-
+var async = require('async');
+var allArticlesReadingFrom;
 
 function replaceEmptySpace(arr){
   var updatedArr = arr.map((s)=>{
@@ -10,23 +12,19 @@ function replaceEmptySpace(arr){
   return updatedArr;
 }
 
-var getWikipediaContent = function(i,a){
-  https.get(i, (res) => {
+function identifyValidArticle(u,aName){
+  https.get(u, (res) => {
     var data="";
     res.on('data', (chunk) => {
       data += chunk;
     });
-  https.get(a, (res) => {
-    var htmldata="";
-    res.on('data', (chunk) => {
-      htmldata += chunk;
-    });
+
     res.on('end', () => {
-      htmldata = JSON.parse(htmldata)
-      var htmlContent = htmldata.parse.text['*']
+      var dataObj = JSON.parse(data)
+      var htmlContent = dataObj.parse.text['*']
 
       function checkforDialogueOrLists(s){
-        if (s.search("<blockquote") >= 0 || s.search("<dl") >= 0){ ////SHOULD I CHECK FOR DL HERE??
+        if (s.search("<blockquote") >= 0 || s.search("<dl") >= 0){
           return true;
         }
         else{
@@ -34,35 +32,69 @@ var getWikipediaContent = function(i,a){
         }
        }
 
-       function parseWikiData(){
-        data = JSON.parse(data)
-        var pageid = Object.keys(data.query.pages)[0];
-        return data.query.pages[pageid].extract  //var content
-       }
+      if (checkforDialogueOrLists(htmlContent) === false){
+        fs.appendFileSync("validWiki.txt", aName + "\n", "UTF-8",{'flags': 'a'});
+      }
+     })
+    res.on('error', (e) => {
+    console.log("There was an error with:" + aName);
+    });
+})
+}
 
-      function cleanEntireContentString(str){
-        str = str.split('= Notes =')[0]
-            .split('= See also =')[0]
-            .split('= References =')[0]
-            .split('= Notes and references =')[0]
-            .split('= Farthest South records =')[0]
-            .split('= Reburial and commemorations =')[0]
-            .split('= See alsoEdit =')[0]
+function doSetTimeout(callback,u,i){
+  setTimeout(function(){callback(u,i)},500)
+}
+
+function finalCleaner(){
+ var e = wikiArticles.articles;
+  for (var i = 0; i<e.length ; i++){
+    var nameOfArticle = e[i];
+    urlA = "https://en.wikipedia.org/w/api.php?action=parse&format=json&page=" + replaceEmptySpace([e[i]])[0]
+    doSetTimeout(identifyValidArticle,urlA,nameOfArticle);
+  }
+}
+
+//writes to seperate text file
+//finalCleaner()
+
+var getWikipediaContent = function(i){
+  https.get(i, (res) => {
+    var data="";
+    res.on('data', (chunk) => {
+      data += chunk;
+    });
+    res.on('end', () => {
+     function parseWikiData(dataInfo){
+      dataInfo = JSON.parse(dataInfo)
+      var pageid = Object.keys(dataInfo.query.pages)[0];
+      return dataInfo.query.pages[pageid].extract  //var content
+     }
+
+     function cleanEntireContentString(str){
+      str = str.split('= Notes =')[0]
+          .split('= See also =')[0]
+          .split('= References =')[0]
+          .split('= Notes and references =')[0]
+          .split('= Farthest South records =')[0]
+          .split('= Reburial and commemorations =')[0]
+          .split('= See alsoEdit =')[0]
             //more specific for certain articles:
-            .split('= U.S. reaction =')[0]
-            .split('= Postwar politics =')[0]
-            .split('= Trials of Kamo =')[0]
-            .split('In What If the Gunpowder Plot Had Succeeded?')[0]
-            .split('BBC correspondent Ben Bradshaw described')[0]
-            .split('The first iron-cased and metal-cylinder rocket')[0]
-            .split('On handing over control to the Atomic Energy Commission')[0]
-            .split('Three counties were composed of the following')[0]
-            .split('Although frontality in portraiture was')[0]
-            //further cleans content string
-            .replace(/ *\=.*\= */gi, "") //remove wiki titles
-            .replace(/\=/gi, "") //remove remaining =
-            .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
-            .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
+            // .split('= U.S. reaction =')[0]
+            // .split('= Postwar politics =')[0]
+            // .split('= Trials of Kamo =')[0]
+            // .split('In What If the Gunpowder Plot Had Succeeded?')[0]
+            // .split('BBC correspondent Ben Bradshaw described')[0]
+            // .split('The first iron-cased and metal-cylinder rocket')[0]
+            // .split('On handing over control to the Atomic Energy Commission')[0]
+            // .split('Three counties were composed of the following')[0]
+            // .split('Although frontality in portraiture was')[0]
+
+          //further cleans content string
+          .replace(/ *\=.*\= */gi, "") //remove wiki titles
+          .replace(/\=/gi, "") //remove remaining =
+          .replace(/(\r\n|\n|\r)/gm, '') //remove new lines
+          .replace( /([a-z|0-9|\)|\]])\.([A-Z])/g, "$1. $2") //seperates sentences with no space in between
         return str;
        }
       //break down long content string into seperate sentences
@@ -94,18 +126,15 @@ var getWikipediaContent = function(i,a){
        }
 
       function printWikiDataTextfile(){
-        if (checkforDialogueOrLists(htmlContent) === false){
-          var content = parseWikiData()
+          var content = parseWikiData(data)
           var entireContentAsStr = cleanEntireContentString(content)
           var sentencesList = removeNonValidSentences(contentToSentences(entireContentAsStr))
           //start writing things here
           fs.appendFileSync("sentences.txt", sentencesList.join("\n"), "UTF-8",{'flags': 'a'});
-        }
       }
       printWikiDataTextfile();
     });
   });
-})
 }
 
 console.log("**************************************************************************************************")
@@ -115,21 +144,32 @@ console.log("*******************************************************************
 //CONTINUE HERE!!
 //next step: get alot of wiki articles and put into list in wikiArticles.js
 //create a function for everything below, now note that you need to account for two different links
-//continue testing to make sure all functions work the way you want!! ex) correctly identify dialouge boxes, what about dl bullet points
+//continue testing to make sure all functions work the way you want!! ex) correctly identify dialouge boxes
 
-//UNCOMMENT THIS AND TURN INTO FUNCTION
-// var wikipediaArticleTitles = replaceEmptySpace(wikiArticles.articles);
-// for (var i = 0; i < wikipediaArticleTitles.length; i++){
-//   var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + wikipediaArticleTitles[i];
-//   console.log(wikipediaArticleTitles[i])
-//   getWikipediaContent(url);
-// }
+function pullAllData(arrTitles){
+  for (var i = 0; i < arrTitles.length; i++){
+    console.log(arrTitles[i])
+    var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=" + arrTitles[i];
+    console.log(url)
+    var ht = "https://en.wikipedia.org/w/api.php?action=parse&format=json&page=" + arrTitles[i];
+    getWikipediaContent(url,ht);
+  }
+}
+var allArticleTitles = replaceEmptySpace(wikiArticles.articles);
+//pullAllData(allArticleTitles);
 
-//NOW NEED TO ACCOUNT FOR TWO URLS!!
-var url = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&explaintext=&titles=1907%20Tiflis%20bank%20robbery"
-var ht = "https://en.wikipedia.org/w/api.php?action=parse&format=json&page=1907%20Tiflis%20bank%20robbery&prop=text"
-getWikipediaContent(url,ht)
+///THIS INCLUDES READING DATA FROM TEXTFILES
+//write function to read information from textfile
+var rd = readline.createInterface({
+    input: fs.createReadStream('./validWiki.txt'),
+    output: process.stdout,
+    terminal: false
+});
 
+allArticlesReadingFrom = []
+rd.on('line', function(line) {
+    console.log(typeof line);
+});
 
 // git status
 // stage for commit: git add . (or specific names)
