@@ -42,6 +42,7 @@ function doSetTimeout(callback,u,i){
   setTimeout(function(){callback(u,i)},700)
 }
 
+//Read text file
 var rdFile = readline.createInterface({
     input: fs.createReadStream('./wikiArt.txt'),
     output: process.stdout,
@@ -84,7 +85,7 @@ function getWikipediaContent(i){
 
       //break down long content string into seperate sentences
       function contentToSentences(str){
-       var re = /\b(\w\.\s)|(\.+\s[a-z])|(Mrs.|Lt.|Dr.|St.|Mr.)|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
+       var re = /\b(\w\.\s)|(\.+\s[a-z])|(Mrs.|Lt.|Dr.|St.|Mr.|Sr.)|([.|?|!|.\"|"\.])\s+(?=[A-Za-z])/g;
        var result = str.replace(re, function(m, g1, g2, g3, g4){
          return g1 ? g1 : (g2 ? g2 : (g3 ? g3 : g4 + "\r"))
        });
@@ -95,10 +96,11 @@ function getWikipediaContent(i){
       //remove sentences with (,),[,],",", and ... ###CHECK IF ' IS BEING REMOVED!!!
       function removeNonValidSentences(arr){
         var regExpOddASCII = /\s\([A-Za-z0-9]|[A-Za-z0-9]\)\s|\s\[[A-Za-z0-9]|[A-Za-z0-9]\]\s|\s\"[A-Za-z0-9]|[A-Za-z0-9]\"\s|.\"|\.\.\./g;
-        var regExpNonASCII = /[^ -z]/g
+        var regExpNonASCII = /[^ -z]/g;
+        var regAbbreviations = / \b[A-Z]{2,}\b/g;
         var j = 0;
         while (j < arr.length) {
-          if (arr[j].match(regExpOddASCII) || arr[j].match(regExpNonASCII) !== null){
+          if (arr[j].match(regExpOddASCII) || arr[j].match(regExpNonASCII) !== null || arr[j].match(regAbbreviations)){
             arr.splice(j, 1);
           }
           else if(arr[j].charCodeAt(0) >= 97 && arr[j].charCodeAt(0) <= 122){
