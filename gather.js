@@ -42,9 +42,9 @@ function doSetTimeout(callback,u,i){
   setTimeout(function(){callback(u,i)},700)
 }
 
-//this initially goes through article list and writes the titles to articles that have no quote content
+// this initially goes through article list and writes the titles to articles that have no quote content
 // var rdFile = readline.createInterface({
-//     input: fs.createReadStream('./wikiArt.txt'),
+//     input: fs.createReadStream('./articlesSearched.txt'),
 //     output: process.stdout,
 //     terminal: false
 // });
